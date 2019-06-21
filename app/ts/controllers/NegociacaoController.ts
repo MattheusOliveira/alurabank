@@ -2,6 +2,7 @@ import { Negociacao, NegociacaoParcial, Negociacoes, Igualavel } from '../models
 import { NegociacoesView, MensagemView } from '../views/index';
 import { logarTempoDeExecucao, domInject, throttle } from '../helpers/decorators/index';
 import { NegociacaoService } from '../services/index';
+import { firebase } from '../../Firebase';
 
 
 export class NegociacaoController {
@@ -19,6 +20,8 @@ export class NegociacaoController {
     private _negociacoesView = new NegociacoesView('#negociacoes-view');
     private _mensagemView = new MensagemView('#mensagem-view');
     private _negociacaoService = new NegociacaoService();
+    private _db = firebase.firestore();
+
 
     constructor() {
         // this._inputData = $('#data');
@@ -43,6 +46,16 @@ export class NegociacaoController {
             Number(this._inputValor.val()),
         );
         this._negociacoes.adiciona(negociacao);
+
+        this._db.collection("negociacoes").add({
+          data,
+          quantidade: Number(this._inputQuantidade.val()),
+          Number(this._inputValor.val())
+        })
+        .then(function(docRef) => {
+          console.log('Document written with id: ', docRef)
+        }).catch((err) => console.log(err));
+
         this._negociacoesView.update(this._negociacoes);
         this._mensagemView.update('Negociação adicionada com sucesso!');
     }
